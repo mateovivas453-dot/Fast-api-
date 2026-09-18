@@ -22,8 +22,6 @@ app = fastapi.FastAPI()
 def al_iniciar():
     sqlmodel.SQLModel.metadata.create_all(motor_db)
 
-# ==================== RUTAS DE USUARIOS ====================
-
 @app.get("/usuarios/", response_model=list[Usuario])
 def listar_usuarios(sesion: sqlmodel.Session = fastapi.Depends(obtener_sesion)):
     return sesion.exec(sqlmodel.select(Usuario)).all()
@@ -57,8 +55,6 @@ def eliminar_usuario(usuario_id: int, sesion: sqlmodel.Session = fastapi.Depends
     sesion.commit()
     return {"mensaje": "Usuario eliminado correctamente"}
 
-# ==================== RUTAS DE LIBROS ====================
-
 @app.get("/libros/", response_model=list[Libro])
 def listar_libros(sesion: sqlmodel.Session = fastapi.Depends(obtener_sesion)):
     return sesion.exec(sqlmodel.select(Libro)).all()
@@ -77,8 +73,7 @@ def actualizar_libro(libro_id: int, libro_actualizado: Libro, sesion: sqlmodel.S
     libro_db = sesion.get(Libro, libro_id)
     if not libro_db:
         raise fastapi.HTTPException(status_code=404, detail="Libro no encontrado")
-    
-    # Verificar si se está intentando cambiar el usuario a uno que no existe
+
     if not sesion.get(Usuario, libro_actualizado.usuario_id):
         raise fastapi.HTTPException(status_code=400, detail="El nuevo usuario asignado no existe")
         
